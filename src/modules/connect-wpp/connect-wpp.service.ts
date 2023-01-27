@@ -37,4 +37,8 @@ export class ConnectWppService {
 
     return 'Mensaje enviado';
   }
+
+  webhook() {
+    return 'hello world';
+  }
 }
