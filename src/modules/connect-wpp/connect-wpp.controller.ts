@@ -37,11 +37,7 @@ export class ConnectWppController {
   @Get('webhook')
   getWebhook(@Res() response: Response, @Query() query, @Req() request) {
     console.log('=================================');
-    console.log('request POST =====>', request.body);
-    console.log('=================================');
-
-    console.log('=================================');
-    console.log('request POST =====>', request.body.changes);
+    console.log('request entry =====>', request.body?.entry[0].changes[0]);
     console.log('=================================');
     if (
       query['hub.mode'] == 'subscribe' &&
