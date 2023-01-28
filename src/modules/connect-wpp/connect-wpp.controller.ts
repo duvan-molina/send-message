@@ -29,7 +29,10 @@ export class ConnectWppController {
   }
 
   @Get('webhook')
-  getWebhook(@Res() response: Response, @Query() query) {
+  getWebhook(@Res() response: Response, @Query() query, @Req() request) {
+    console.log('=================================');
+    console.log('request POST =====>', request);
+    console.log('=================================');
     if (
       query['hub.mode'] == 'subscribe' &&
       query['hub.verify_token'] == 'token-cool'
