@@ -39,6 +39,6 @@ export class ConnectWppService {
   }
 
   webhook() {
-    return 'hello world';
+    return 1435442907;
   }
 }
