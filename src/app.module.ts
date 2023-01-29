@@ -11,11 +11,11 @@ import { PhoneNumber } from './entities/phoneNumber.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '34.123.234.246',
+      host: 'bv7cvvfbgurpcjwm9txq-postgresql.services.clever-cloud.com',
       port: 5432,
-      database: 'send-meesage-db',
-      username: 'user-send-message',
-      password: '0742226',
+      database: 'bv7cvvfbgurpcjwm9txq',
+      username: 'u4d9dijynehjnu2ngmrf',
+      password: 'Jq0CwOveE1n26aPuN4BJOuGuY5hr7B',
       entities: [Profile, PhoneNumber],
       synchronize: true,
     }),
