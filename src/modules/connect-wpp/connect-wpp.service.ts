@@ -55,7 +55,8 @@ export class ConnectWppService {
         ),
     );
 
-    console.log('res with template ====>', { data });
+    console.log('res with template ====>', data.contacts[0]);
+    console.log('res with template ====>', data.messages[0]);
 
     return 'Mensaje enviado';
   }
