@@ -8,7 +8,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { ConnectWppService } from './connect-wpp.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('api/v1')
 export class ConnectWppController {
@@ -20,19 +20,12 @@ export class ConnectWppController {
   }
 
   @Post('webhook')
-  postWebhook(@Req() request, @Query() query, @Res() response: Response) {
-    return this.connectWppService.webhook(response, request, query);
+  postWebhook(@Req() request: Request) {
+    return this.connectWppService.webhook(request);
   }
 
   @Get('webhook')
-  getWebhook(@Res() response: Response, @Query() query, @Req() request) {
-    if (
-      query['hub.mode'] == 'subscribe' &&
-      query['hub.verify_token'] == 'token-cool'
-    ) {
-      return response.status(HttpStatus.ACCEPTED).send(query['hub.challenge']);
-    } else {
-      response.status(HttpStatus.BAD_REQUEST).send({ error: 'error' });
-    }
+  getWebhook(@Res() response: Response, @Query() query) {
+    return this.connectWppService.webhookGet(query, response);
   }
 }

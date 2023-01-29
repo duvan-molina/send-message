@@ -46,11 +46,29 @@ export class ConnectWppService {
     return 'Mensaje enviado';
   }
 
-  webhook(@Res() response: Response, @Req() request: Request, @Query() query) {
-    console.log('=================================');
-    console.log('request entry GET =====>', request.body?.entry[0].changes[0]);
-    console.log('=================================');
+  webhook(@Req() request: Request) {
+    if (request.body.object) {
+      if (
+        request.body.entry &&
+        request.body.entry[0].changes &&
+        request.body.entry[0].changes[0] &&
+        request.body.entry[0].changes[0].value.messages &&
+        request.body.entry[0].changes[0].value.messages[0]
+      ) {
+        const phone_number_id =
+          request.body.entry[0].changes[0].value.metadata.phone_number_id;
+        const from = request.body.entry[0].changes[0].value.messages[0].from; // extract the phone number from the webhook payload
+        const msg_body =
+          request.body.entry[0].changes[0].value.messages[0].text.body; // extract the message text from the webhook payload
 
+        const responseObj = { phone_number_id, from, msg_body };
+        console.log(responseObj);
+        return responseObj;
+      }
+    }
+  }
+
+  webhookGet(@Query() query, @Res() response: Response) {
     if (
       query['hub.mode'] == 'subscribe' &&
       query['hub.verify_token'] == 'token-cool'
