@@ -42,6 +42,8 @@ export class ConnectWppService {
         ),
     );
 
+    console.log({ data });
+
     return 'Mensaje enviado';
   }
 
