@@ -42,7 +42,7 @@ export class ConnectWppService {
         ),
     );
 
-    console.log({ data });
+    console.log('res ====>', { data });
 
     return 'Mensaje enviado';
   }
