@@ -1,5 +1,13 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  Logger,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -14,7 +22,7 @@ export class ConnectWppService {
           'https://graph.facebook.com/v15.0/111556875175038/messages',
           {
             messaging_product: 'whatsapp',
-            to: '573216972009',
+            to: '573176050989',
             type: 'template',
             template: { language: { code: 'en_US' }, name: 'hello_world' },
           },
@@ -38,7 +46,18 @@ export class ConnectWppService {
     return 'Mensaje enviado';
   }
 
-  webhook() {
-    return 1435442907;
+  webhook(@Res() response: Response, @Req() request: Request, @Query() query) {
+    console.log('=================================');
+    console.log('request entry GET =====>', request.body?.entry[0].changes[0]);
+    console.log('=================================');
+
+    if (
+      query['hub.mode'] == 'subscribe' &&
+      query['hub.verify_token'] == 'token-cool'
+    ) {
+      return response.status(HttpStatus.ACCEPTED).send(query['hub.challenge']);
+    } else {
+      response.status(HttpStatus.BAD_REQUEST).send({ error: 'error' });
+    }
   }
 }
