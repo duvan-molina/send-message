@@ -11,10 +11,11 @@ import { PhoneNumber } from './entities/phoneNumber.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: '34.123.234.246',
       port: 5432,
-      username: 'postgres',
-      password: 'root',
+      database: 'send-meesage-db',
+      username: 'user-send-message',
+      password: '0742226',
       entities: [Profile, PhoneNumber],
       synchronize: true,
     }),
