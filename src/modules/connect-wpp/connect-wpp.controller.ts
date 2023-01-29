@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { ConnectWppService } from './connect-wpp.service';
 import { Request, Response } from 'express';
 
@@ -6,9 +16,19 @@ import { Request, Response } from 'express';
 export class ConnectWppController {
   constructor(private readonly connectWppService: ConnectWppService) {}
 
-  @Post('send-message')
-  sendMessage() {
-    return this.connectWppService.sendMessage();
+  @Post('send-message-with-template')
+  sendMessage(@Body() data: { phoneNumber: string; template: string }) {
+    return this.connectWppService.sendMessageWithTemplate(data);
+  }
+
+  @Post('send-message-text')
+  sendMessageText(@Body() data: { phoneNumber: string; text: string }) {
+    return this.connectWppService.sendMessageText(data);
+  }
+
+  @Delete('delete-contact/:contactId')
+  deleteContact(@Param('contactId') contactId: string) {
+    return this.connectWppService.deleteContact(contactId);
   }
 
   @Post('webhook')
@@ -19,5 +39,12 @@ export class ConnectWppController {
   @Get('webhook')
   getWebhook(@Res() response: Response, @Query() query) {
     return this.connectWppService.webhookGet(query, response);
+  }
+
+  @Post('add-contact')
+  addContact(
+    @Body() data: { phoneNumber: string; firtsName: string; lastName: string },
+  ) {
+    return this.connectWppService.addContact(data);
   }
 }

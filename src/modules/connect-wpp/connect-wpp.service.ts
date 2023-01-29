@@ -7,24 +7,74 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import { catchError, firstValueFrom } from 'rxjs';
+import { PhoneNumber } from 'src/entities/phoneNumber.entity';
+import { Profile } from 'src/entities/profile.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ConnectWppService {
   private readonly logger = new Logger(ConnectWppService.name);
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    @InjectRepository(Profile)
+    private contactRepository: Repository<Profile>,
+    @InjectRepository(PhoneNumber)
+    private phoneNumberRepository: Repository<PhoneNumber>,
+    private readonly httpService: HttpService,
+  ) {}
 
-  async sendMessage() {
+  async sendMessageWithTemplate(payload: {
+    phoneNumber: string;
+    template: string;
+  }) {
     const { data } = await firstValueFrom(
       this.httpService
         .post(
           'https://graph.facebook.com/v15.0/111556875175038/messages',
           {
             messaging_product: 'whatsapp',
-            to: '573216972009',
-            type: 'template',
+            to: payload.phoneNumber,
+            type: payload.template,
             template: { language: { code: 'en_US' }, name: 'hello_world' },
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization:
+                'Bearer EAAR3xc0zaxYBALGJ4etK8oAqIxAh2YokZAxScRMEEsN8bZC9EZA9ko3hED8ZCN8ZAZAovcnF8PTLmPKcFOBOLxcFsTW3rlUpioYsmkqutfwqabFQbLMj3lMd20sJxAGJLTdPj6ehak4ZARuCOh7z3gmEwDm28QGxpHIpntb7QsKCtfYvrAc3Muc9x3voG6y11ZASRwYRaTGVDwZDZDD',
+            },
+          },
+        )
+        .pipe(
+          catchError((error) => {
+            this.logger.error(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+
+    console.log('res with template ====>', { data });
+
+    return 'Mensaje enviado';
+  }
+
+  async sendMessageText(payload: { phoneNumber: string; text: string }) {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post(
+          'https://graph.facebook.com/v15.0/111556875175038/messages',
+          {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: payload.phoneNumber,
+            type: 'text',
+            text: {
+              // the text object
+              preview_url: false,
+              body: payload.text,
+            },
           },
           {
             headers: {
@@ -78,5 +128,32 @@ export class ConnectWppService {
     } else {
       response.status(HttpStatus.BAD_REQUEST).send({ error: 'error' });
     }
+  }
+
+  async addContact(data: {
+    phoneNumber: string;
+    firtsName: string;
+    lastName: string;
+  }) {
+    await this.contactRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Profile)
+      .values(data)
+      .execute();
+
+    return {
+      messages: 'contacto guardado correctamente',
+    };
+  }
+
+  async deleteContact(contactId: string) {
+    await this.contactRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Profile)
+      .where('id = :id', { id: contactId })
+      .execute();
+    return 'The Contact was successfully removing';
   }
 }
