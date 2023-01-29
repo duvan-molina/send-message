@@ -22,7 +22,7 @@ export class ConnectWppService {
           'https://graph.facebook.com/v15.0/111556875175038/messages',
           {
             messaging_product: 'whatsapp',
-            to: '573176050989',
+            to: '573216972009',
             type: 'template',
             template: { language: { code: 'en_US' }, name: 'hello_world' },
           },
@@ -41,7 +41,6 @@ export class ConnectWppService {
           }),
         ),
     );
-    console.log(data);
 
     return 'Mensaje enviado';
   }
