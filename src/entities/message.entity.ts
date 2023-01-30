@@ -3,26 +3,28 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  OneToOne,
-  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Chat } from './chat.entity';
-import { Profile } from './profile.entity';
 
 @Entity()
-export class PhoneNumber {
+export class Message {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   phoneNumber: string;
 
-  @OneToOne(() => Profile)
-  @JoinColumn()
-  profile: Profile;
+  @Column()
+  message: string;
 
-  @OneToOne(() => Chat)
-  @JoinColumn()
+  @Column()
+  wa_id: string;
+
+  @Column()
+  messagesId: string;
+
+  @ManyToOne(() => Chat, (chat) => chat.messages)
   chat: Chat;
 
   @CreateDateColumn({ type: 'timestamp' })

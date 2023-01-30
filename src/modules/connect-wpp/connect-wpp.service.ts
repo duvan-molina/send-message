@@ -10,6 +10,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import { catchError, firstValueFrom } from 'rxjs';
+import { Chat } from 'src/entities/chat.entity';
+import { Message } from 'src/entities/message.entity';
 import { PhoneNumber } from 'src/entities/phoneNumber.entity';
 import { Profile } from 'src/entities/profile.entity';
 import { Repository } from 'typeorm';
@@ -20,6 +22,10 @@ export class ConnectWppService {
   constructor(
     @InjectRepository(Profile)
     private contactRepository: Repository<Profile>,
+    @InjectRepository(Chat)
+    private chatRepository: Repository<Chat>,
+    @InjectRepository(Message)
+    private messageRepository: Repository<Message>,
     @InjectRepository(PhoneNumber)
     private phoneNumberRepository: Repository<PhoneNumber>,
     private readonly httpService: HttpService,
@@ -54,6 +60,37 @@ export class ConnectWppService {
           }),
         ),
     );
+
+    const res = await this.messageRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Message)
+      .values({
+        phoneNumber: data?.contacts[0].input || '',
+        wa_id: data.contacts[0].wa_id || '',
+        messagesId: data.messages[0].id || '',
+        message: 'Hello',
+      })
+      .execute();
+
+    const resChat = await this.chatRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Chat)
+      .values({
+        messages: res.raw[0],
+      })
+      .execute();
+
+    await this.contactRepository
+      .createQueryBuilder()
+      .insert()
+      .into(PhoneNumber)
+      .values({
+        phoneNumber: data.contacts[0].input,
+        chat: resChat.raw[0],
+      })
+      .execute();
 
     console.log('res with template ====>', data.contacts[0]);
     console.log('res with template ====>', data.messages[0]);

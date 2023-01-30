@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Profile } from './entities/profile.entity';
 import { PhoneNumber } from './entities/phoneNumber.entity';
+import { Chat } from './entities/chat.entity';
+import { Message } from './entities/message.entity';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { PhoneNumber } from './entities/phoneNumber.entity';
       database: 'bv7cvvfbgurpcjwm9txq',
       username: 'u4d9dijynehjnu2ngmrf',
       password: 'Jq0CwOveE1n26aPuN4BJOuGuY5hr7B',
-      entities: [Profile, PhoneNumber],
+      entities: [Profile, PhoneNumber, Chat, Message],
       synchronize: true,
     }),
     ConnectWppModule,
