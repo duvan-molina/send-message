@@ -21,10 +21,6 @@ export class PhoneNumber {
   @JoinColumn()
   profile: Profile;
 
-  @OneToOne(() => Chat)
-  @JoinColumn()
-  chat: Chat;
-
   @CreateDateColumn({ type: 'timestamp' })
   creation_date: string;
 }

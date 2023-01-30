@@ -34,6 +34,7 @@ export class ConnectWppService {
   async sendMessageWithTemplate(payload: {
     phoneNumber: string;
     template: string;
+    chatId?: string;
   }) {
     const { data } = await firstValueFrom(
       this.httpService
@@ -61,39 +62,66 @@ export class ConnectWppService {
         ),
     );
 
-    const res = await this.messageRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Message)
-      .values({
-        phoneNumber: data?.contacts[0].input || '',
-        wa_id: data.contacts[0].wa_id || '',
-        messagesId: data.messages[0].id || '',
-        message: 'Hello',
-      })
-      .execute();
-
-    const resChat = await this.chatRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Chat)
-      .values({
-        messages: res.raw[0],
-      })
-      .execute();
-
-    await this.contactRepository
-      .createQueryBuilder()
-      .insert()
-      .into(PhoneNumber)
-      .values({
+    const res = await this.phoneNumberRepository.find({
+      where: {
         phoneNumber: data.contacts[0].input,
-        chat: resChat.raw[0],
-      })
-      .execute();
+      },
+    });
 
-    console.log('res with template ====>', data.contacts[0]);
-    console.log('res with template ====>', data.messages[0]);
+    if (res.length > 0 && !payload?.chatId)
+      return {
+        errorMessage: 'ingrese un chatId',
+      };
+
+    if (res.length > 0 && payload?.chatId) {
+      const restChatId = await this.chatRepository.findOneBy({
+        id: payload.chatId,
+      });
+
+      await this.messageRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Message)
+        .values({
+          phoneNumber: data?.contacts[0].input || '',
+          wa_id: data.contacts[0].wa_id || '',
+          messagesId: data.messages[0].id || '',
+          chat: restChatId,
+          message: 'Hello 2',
+        })
+        .execute();
+
+      return 'mensaje nuevo añadido';
+    } else {
+      const resChat = await this.chatRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Chat)
+        .values({})
+        .execute();
+
+      await this.messageRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Message)
+        .values({
+          phoneNumber: data?.contacts[0].input || '',
+          wa_id: data.contacts[0].wa_id || '',
+          messagesId: data.messages[0].id || '',
+          chat: resChat.raw[0],
+          message: 'Hello',
+        })
+        .execute();
+
+      await this.phoneNumberRepository
+        .createQueryBuilder()
+        .insert()
+        .into(PhoneNumber)
+        .values({
+          phoneNumber: data.contacts[0].input,
+        })
+        .execute();
+    }
 
     return 'Mensaje enviado';
   }

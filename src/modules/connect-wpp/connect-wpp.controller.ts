@@ -17,7 +17,9 @@ export class ConnectWppController {
   constructor(private readonly connectWppService: ConnectWppService) {}
 
   @Post('send-message-with-template')
-  sendMessage(@Body() data: { phoneNumber: string; template: string }) {
+  sendMessage(
+    @Body() data: { phoneNumber: string; template: string; chatId?: string },
+  ) {
     return this.connectWppService.sendMessageWithTemplate(data);
   }
 
