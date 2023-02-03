@@ -16,9 +16,20 @@ import { Request, Response } from 'express';
 export class ConnectWppController {
   constructor(private readonly connectWppService: ConnectWppService) {}
 
+  @Get('get-templates')
+  getTemplates() {
+    return this.connectWppService.getTemplates();
+  }
+
   @Post('send-message-with-template')
   sendMessage(
-    @Body() data: { phoneNumber: string; template: string; chatId?: string },
+    @Body()
+    data: {
+      phoneNumber: string;
+      type: string;
+      chatId?: string;
+      text: string;
+    },
   ) {
     return this.connectWppService.sendMessageWithTemplate(data);
   }

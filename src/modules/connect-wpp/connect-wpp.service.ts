@@ -33,17 +33,17 @@ export class ConnectWppService {
 
   async sendMessageWithTemplate(payload: {
     phoneNumber: string;
-    template: string;
+    type: string;
     chatId?: string;
   }) {
     const { data } = await firstValueFrom(
       this.httpService
         .post(
-          'https://graph.facebook.com/v15.0/111556875175038/messages',
+          'https://graph.facebook.com/v16.0/111556875175038/messages',
           {
             messaging_product: 'whatsapp',
             to: payload.phoneNumber,
-            type: payload.template,
+            type: payload.type,
             template: { language: { code: 'en_US' }, name: 'hello_world' },
           },
           {
@@ -124,6 +124,30 @@ export class ConnectWppService {
     }
 
     return 'Mensaje enviado';
+  }
+
+  async getTemplates() {
+    const data = await firstValueFrom(
+      this.httpService
+        .get(
+          'https://graph.facebook.com/v16.0/105533322450702/message_templates?access_token=EAAR3xc0zaxYBAGnRZCGjBz7M6tGmfrqougF603tVbgftzGFEZAHG6YO0oGpvVZContTb9q39C3NMug4lqPZAFp878bvACeXEnFqZCMWAyzEDh6atxr0yzr5V32zZA6RWzG35ZC5pZBpMnqBAcAhZBGbEZB7OTrBsasVbHymm7UhUtbpOGsCSBZA425zsUw2ZAEKTmpzmcEB5q6ZAPCgZDZD',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept-Encoding': '*',
+            },
+          },
+        )
+        .pipe(
+          catchError((error) => {
+            console.log(error);
+            // console.log('error', error);
+            this.logger.error(error);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+    return data.data;
   }
 
   async sendMessageText(payload: { phoneNumber: string; text: string }) {
