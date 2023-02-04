@@ -18,7 +18,12 @@ export class ConnectWppController {
 
   @Get('get-templates')
   getTemplates() {
-    return this.connectWppService.getTemplates();
+    return this.connectWppService.getTemplates({});
+  }
+
+  @Get('get-contacts')
+  getContacts() {
+    return this.connectWppService.getContacts();
   }
 
   @Post('send-message-with-template')
@@ -39,11 +44,6 @@ export class ConnectWppController {
     return this.connectWppService.sendMessageText(data);
   }
 
-  @Delete('delete-contact/:contactId')
-  deleteContact(@Param('contactId') contactId: string) {
-    return this.connectWppService.deleteContact(contactId);
-  }
-
   @Post('webhook')
   postWebhook(@Req() request: Request) {
     return this.connectWppService.webhook(request);
@@ -52,12 +52,5 @@ export class ConnectWppController {
   @Get('webhook')
   getWebhook(@Res() response: Response, @Query() query) {
     return this.connectWppService.webhookGet(query, response);
-  }
-
-  @Post('add-contact')
-  addContact(
-    @Body() data: { phoneNumber: string; firtsName: string; lastName: string },
-  ) {
-    return this.connectWppService.addContact(data);
   }
 }

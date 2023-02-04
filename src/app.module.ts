@@ -8,16 +8,21 @@ import { Profile } from './entities/profile.entity';
 import { PhoneNumber } from './entities/phoneNumber.entity';
 import { Chat } from './entities/chat.entity';
 import { Message } from './entities/message.entity';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: ['.env.development.local', '.env.development', '.env'],
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'bv7cvvfbgurpcjwm9txq-postgresql.services.clever-cloud.com',
-      port: 5432,
-      database: 'bv7cvvfbgurpcjwm9txq',
-      username: 'u4d9dijynehjnu2ngmrf',
-      password: 'Jq0CwOveE1n26aPuN4BJOuGuY5hr7B',
+      type: process.env.DB_TYPE as any,
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      database: process.env.DB_NAME,
+      username: process.env.DB_USER_NAME,
+      password: process.env.DB_PASSWORD,
       entities: [Profile, PhoneNumber, Chat, Message],
       synchronize: true,
     }),

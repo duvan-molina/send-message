@@ -39,7 +39,7 @@ export class ConnectWppService {
     const { data } = await firstValueFrom(
       this.httpService
         .post(
-          'https://graph.facebook.com/v16.0/111556875175038/messages',
+          `${process.env.API_URL}/${process.env.PHONE_NUMBER_ID}/messages`,
           {
             messaging_product: 'whatsapp',
             to: payload.phoneNumber,
@@ -49,8 +49,7 @@ export class ConnectWppService {
           {
             headers: {
               'Content-Type': 'application/json',
-              Authorization:
-                'Bearer EAAR3xc0zaxYBALGJ4etK8oAqIxAh2YokZAxScRMEEsN8bZC9EZA9ko3hED8ZCN8ZAZAovcnF8PTLmPKcFOBOLxcFsTW3rlUpioYsmkqutfwqabFQbLMj3lMd20sJxAGJLTdPj6ehak4ZARuCOh7z3gmEwDm28QGxpHIpntb7QsKCtfYvrAc3Muc9x3voG6y11ZASRwYRaTGVDwZDZDD',
+              Authorization: `Bearer ${process.env.FACEBOOK_ACCESS_TOKEN}`,
             },
           },
         )
@@ -126,11 +125,39 @@ export class ConnectWppService {
     return 'Mensaje enviado';
   }
 
-  async getTemplates() {
+  async getTemplates(payload: { limit?: number }) {
     const data = await firstValueFrom(
       this.httpService
         .get(
-          'https://graph.facebook.com/v16.0/105533322450702/message_templates?access_token=EAAR3xc0zaxYBAGnRZCGjBz7M6tGmfrqougF603tVbgftzGFEZAHG6YO0oGpvVZContTb9q39C3NMug4lqPZAFp878bvACeXEnFqZCMWAyzEDh6atxr0yzr5V32zZA6RWzG35ZC5pZBpMnqBAcAhZBGbEZB7OTrBsasVbHymm7UhUtbpOGsCSBZA425zsUw2ZAEKTmpzmcEB5q6ZAPCgZDZD',
+          `${process.env.API_URL}/${
+            process.env.WHATSAPP_BUSSINES_ACCOUNT_ID
+          }/message_templates?limit=${payload.limit || 10}&access_token=${
+            process.env.FACEBOOK_ACCESS_TOKEN
+          }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept-Encoding': '*',
+            },
+          },
+        )
+        .pipe(
+          catchError((error) => {
+            console.log(error);
+            // console.log('error', error);
+            this.logger.error(error);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+    return data.data;
+  }
+
+  async getContacts() {
+    const data = await firstValueFrom(
+      this.httpService
+        .get(
+          `${process.env.API_URL}/${process.env.WHATSAPP_BUSSINES_ACCOUNT_ID}/phone_numbers?access_token=${process.env.FACEBOOK_ACCESS_TOKEN}`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -218,32 +245,5 @@ export class ConnectWppService {
     } else {
       response.status(HttpStatus.BAD_REQUEST).send({ error: 'error' });
     }
-  }
-
-  async addContact(data: {
-    phoneNumber: string;
-    firtsName: string;
-    lastName: string;
-  }) {
-    await this.contactRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Profile)
-      .values(data)
-      .execute();
-
-    return {
-      messages: 'contacto guardado correctamente',
-    };
-  }
-
-  async deleteContact(contactId: string) {
-    await this.contactRepository
-      .createQueryBuilder()
-      .delete()
-      .from(Profile)
-      .where('id = :id', { id: contactId })
-      .execute();
-    return 'The Contact was successfully removing';
   }
 }
